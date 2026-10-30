@@ -26,7 +26,7 @@ qa-agents = "qa_agents.cli:main"
 include = ["qa_agents*"]
 
 [tool.setuptools.package-data]
-qa_agents = ["demo/*.json"]
+qa_agents = ["demo/*.json", "knowledge/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

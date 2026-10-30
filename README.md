@@ -33,6 +33,39 @@ There are two ways to use it:
 
 See [`sample-reports/`](sample-reports/) for the output of every agent on the bundled examples.
 
+## Built on published QA practice
+
+Each agent carries an expert checklist with its sources in [`qa_agents/knowledge/`](qa_agents/knowledge/). The checklist is part of the agent's instructions, and the matching skill holds a copy in its folder.
+
+| Agent | Grounded in |
+|---|---|
+| Requirement review | ISO/IEC/IEEE 29148:2018, INVEST, ISTQB CTFL v4.0.1, NASA ARM weak-phrase lists, requirements smells (Femmer et al.), ISO/IEC 25010:2023, WCAG 2.2 |
+| Test case generation | ISTQB CTFL v4.0.1 techniques (EP, 3-value BVA, decision tables, state transitions), NIST combinatorial testing, ISO/IEC/IEEE 29119-3, Hendrickson's Test Heuristics Cheat Sheet |
+| API contract | OWASP API Security Top 10 2023, RFC 9110 / 6585 status codes, RFC 9457 Problem Details, Spectral OpenAPI rules, Pact, oasdiff breaking-change rules |
+| Code review | Test-smell catalogue (van Deursen et al.; tsDetect), official Playwright / Cypress / Selenium guidance, OWASP Secrets Management Cheat Sheet |
+| Failure analysis | False-alarm research (Herzig & Nagappan, Microsoft), Maven Surefire rerun semantics |
+| Flaky tests | Luo et al. FSE 2014, Eck et al. FSE 2019, iDFlakies, Gruber et al. 2022, flip rate (Kowalczyk et al., Apple), Google Testing Blog |
+| Defect drafting | "What Makes a Good Bug Report?" (Bettenburg, Zimmermann et al. FSE 2008), ISO/IEC/IEEE 29119-3, ISTQB severity vs priority |
+| Regression selection | Yoo & Harman survey, safe vs unsafe selection (Rothermel & Harrold), Google CI research (Elbaum et al.; Memon et al.) |
+| Execution report | ISTQB CTFL v4.0.1 progress and completion reports and metrics |
+| Release readiness | ISTQB risk level and exit criteria, SonarQube quality gates, Google SRE canarying and rollback, DORA metrics |
+
+## Foolproof by design
+
+- **Messy inputs:** UTF-8 with or without a BOM, UTF-16 Windows exports, comma or semicolon CSVs, Jira and Azure DevOps column names and severity scales, Swagger 2.0 and OpenAPI 3.0/3.1, nested or Surefire-rerun JUnit XML, `git diff --name-status` renames and Windows paths.
+- **Clear errors instead of crashes:** empty, binary, oversized or malformed files, an invalid test map or criteria, and missing columns each produce one actionable message that names the file.
+- **Fail-safe defaults:**
+  - An unknown defect status counts as open.
+  - A risk with an unrated likelihood or impact counts as high.
+  - Missing defect data fails the defect gates.
+  - Skipped smoke tests fail the smoke gate.
+- **Guardrails in code:**
+  - No "go" while a gate fails.
+  - Smoke and P1 tests are always kept, and build or dependency changes force a full-suite recommendation.
+  - Unused boundary values and duplicate test IDs are reported.
+- **Prompt-injection aware:** input files are treated as data, never as instructions.
+- **Model output checked:** structured outputs are validated against Pydantic schemas, and a refusal, a truncated answer or an API error each produce a clear message.
+
 ```mermaid
 flowchart LR
     F[Your files] --> A["analyse()<br/>deterministic Python"]
@@ -54,7 +87,7 @@ pip install -e ".[dev]"
 qa-agents list
 qa-agents example release-readiness --demo     # one agent, recorded response
 qa-agents example all --demo --out reports     # all ten, written to ./reports
-pytest -q                                       # 59 tests, no API key needed
+pytest -q                                       # 110 tests, no API key needed
 ```
 
 ## Using the Claude Code skills
@@ -142,7 +175,8 @@ Run an agent after your test stage and publish the report as a build artifact. F
 ```
 qa_agents/
   core/        llm.py (Claude + demo client), base.py (agent lifecycle), render.py (Markdown)
-  tools/       junit.py, defects.py, openapi.py: shared parsers
+  tools/       junit.py, defects.py, openapi.py, text.py: shared parsers
+  knowledge/   one expert checklist per agent, with sources
   agents/      one module per agent: schema, prompt, analyse(), finalise()
   demo/        recorded responses for --demo
 examples/      made-up sample inputs for each agent (fictional "ShopLite" store)
@@ -153,7 +187,7 @@ tests/         pytest: deterministic logic, guardrails, CLI, API client (mocked 
 
 ## Adding an agent
 
-Subclass `Agent`, define a Pydantic `output_model`, a `system_prompt` and `build_prompt()`. Optionally add `analyse()` for deterministic facts and `finalise()` for guardrails. Register the agent in `qa_agents/agents/__init__.py`, add a recorded response in `qa_agents/demo/` and add a skill in `.claude/skills/qa-<name>/SKILL.md`.
+Subclass `Agent`, define a Pydantic `output_model`, a `system_prompt` and `build_prompt()`. Optionally add `analyse()` for deterministic facts and `finalise()` for guardrails. Register the agent in `qa_agents/agents/__init__.py`, add a recorded response in `qa_agents/demo/`, an expert checklist in `qa_agents/knowledge/<name>.md` and a skill in `.claude/skills/qa-<name>/SKILL.md`, then run `python scripts/sync_skill_references.py`. The tests fail if any of these are missing or out of sync.
 
 ## Data and privacy
 

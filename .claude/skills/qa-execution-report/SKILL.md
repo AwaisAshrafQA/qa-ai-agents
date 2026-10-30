@@ -1,30 +1,57 @@
 ---
 name: qa-execution-report
-description: Write a QA status report from test results, defect status and test progress, with a headline, on-track/at-risk/off-track status, highlights, concerns and next steps. Use when the user asks for a test summary, QA status update, sprint test report or daily report.
+description: Write a QA status or test completion report from test results, defect status and progress (ISTQB v4.0 report contents) with headline, on-track/at-risk/off-track status, exact metrics, highlights, concerns and owned next steps. Use when the user asks for a test summary, QA status update, sprint/daily test report or test completion report.
 ---
 
 # Test Execution Report
 
-## 1. Get the facts
+## 1. Inputs
 
-Collect the JUnit XML reports, a defects CSV (`id,title,severity,status,module`) and optionally a progress YAML (`planned_tests`, `sprint`, `test_window`, `environment`). Then run:
+- JUnit XML reports.
+- A defects CSV; a Jira or Azure DevOps export works.
+- Optionally, a progress YAML with `planned_tests`, `sprint`, `test_window` and `environment`.
+
+Ask for the planned test count if progress matters to the audience.
+
+## 2. Compute the facts
 
 ```bash
 qa-agents facts execution-report <results.xml...> [defects.csv] [progress.yaml]
 ```
 
-If `qa-agents` is missing, install it: `pip install git+https://github.com/AwaisAshrafQA/qa-ai-agents`.
+The facts include:
+- totals: executed, passed, failed, skipped, pass rate
+- results per suite, the slowest tests and a smoke summary
+- the failed and skipped tests
+- tests that passed only on rerun
+- defects by severity, with the age of open critical and major defects
+- progress, with the number of tests not run
 
-The facts hold the totals, pass rate, per-suite results, slowest tests, failed tests, defects by severity and progress. They come from code: quote the numbers exactly and never recalculate them.
+All numbers come from code: quote them exactly.
 
-## 2. Analyse
+If `qa-agents` is missing, run `pip install git+https://github.com/AwaisAshrafQA/qa-ai-agents`. If it still can't run, count from the reports yourself with [reference.md](reference.md), and say so.
 
-Follow `instructions`. Keep it readable in two minutes.
+## 3. Analyse
 
-## 3. Report
+Follow `instructions` (expert checklist: ISTQB report contents, metrics, status rules). Untested is not passed: report failed, skipped and not-run tests separately.
 
-Headline, status, executive summary, highlights, concerns, defect commentary and next steps (each with an owner role). Include a small results table taken from the facts.
+## 4. Report
 
-## 4. Offer next steps
+The headline and status first, then:
+- the executive summary
+- a results table taken from the facts
+- highlights and concerns
+- defect commentary
+- next steps, each with an owner role
 
-- A short version for Slack or Teams, or an email to stakeholders. Show it and let the user send it; if a messaging connector is available, post only after explicit approval.
+It should take two minutes to read.
+
+## 5. Quality bar (check before presenting)
+
+- Every number matches `facts` exactly.
+- The status follows the rules: an open critical defect or a red smoke suite means `off_track`.
+- Every concern states its impact.
+
+## 6. Next steps (ask first)
+
+- Write a short version for Slack, Teams or email. If a messaging connector is available, post only after the user explicitly approves.

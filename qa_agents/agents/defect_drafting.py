@@ -9,9 +9,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from qa_agents.core.base import Agent, facts_block, file_block
-
-IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp"}
+from qa_agents.core.base import IMAGE_TYPES, Agent, facts_block, file_block
 _ERROR_LINE = re.compile(r"\b(WARN|ERROR|FATAL|Exception|Traceback|panic)\b")
 _STATUS = re.compile(r"\b(?:HTTP/\d\.\d\s+|status[=: ]+)([1-5]\d\d)\b", re.IGNORECASE)
 _IDS = re.compile(r"(?i)\b(request[-_ ]?id|correlation[-_ ]?id|trace[-_ ]?id|x-request-id)[\"'\s:=]+([\w-]{6,})")

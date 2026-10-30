@@ -23,16 +23,17 @@ There were 4 failures with 4 different causes: 1 product defect in coupon pricin
 
 ## Computed Locally
 
+- **Tests in Reports:** 8
 - **Failed Tests:** 4
 
 ### Failures
 
-| Test | Suite | Message | Heuristic Category |
-|---|---|---|---|
-| orders.CreateOrderTest.applies 20 percent coupon to subtotal | api-orders | Expected total 164.00 but was 160.00 | app_defect |
-| orders.CancelOrderTest.cancels a paid order | api-orders | java.net.SocketTimeoutException: connect timed out | environment |
-| checkout.spec.ts.guest can apply a coupon | web-checkout | TimeoutError: locator.click: Timeout 10000ms exceeded. | automation_issue |
-| checkout.spec.ts.registered user checks out with saved card | web-checkout | Error: user already exists: qa.buyer01@shoplite.example (409) | test_data |
+| Test | Suite | Kind | Message | Reruns | Heuristic Category |
+|---|---|---|---|---|---|
+| orders.CreateOrderTest.applies 20 percent coupon to subtotal | api-orders | assertion failure | Expected total 164.00 but was 160.00 | 0 | app_defect |
+| orders.CancelOrderTest.cancels a paid order | api-orders | error (unexpected exception) | java.net.SocketTimeoutException: connect timed out | 0 | environment |
+| checkout.spec.ts.guest can apply a coupon | web-checkout | assertion failure | TimeoutError: locator.click: Timeout 10000ms exceeded. | 0 | automation_issue |
+| checkout.spec.ts.registered user checks out with saved card | web-checkout | assertion failure | Error: user already exists: qa.buyer01@shoplite.example (409) | 0 | test_data |
 
 ### By Category
 

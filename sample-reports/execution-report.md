@@ -40,6 +40,7 @@ We executed 15 of 18 planned tests (83.3%). 13 passed, 2 failed and 1 was skippe
 ### Results
 
 - **Total:** 16
+- **Executed:** 15
 - **Passed:** 13
 - **Failed:** 2
 - **Errors:** 0
@@ -65,12 +66,24 @@ We executed 15 of 18 planned tests (83.3%). 13 passed, 2 failed and 1 was skippe
 | checkout.cash on delivery order | 6.4 |
 | smoke.login with email | 4.2 |
 
+#### Smoke
+
+- **Total:** 4
+- **Failed:** 0
+- **Skipped:** 0
+
 ### Failed Tests
 
 | Test | Message |
 |---|---|
 | orders.CreateOrderTest.applies 20 percent coupon to subtotal | Expected total 164.00 but was 160.00 |
 | checkout.order summary shows coupon discount | expected 'AED 164.00' to equal 'AED 160.00' |
+
+### Skipped Tests
+
+| Test | Reason |
+|---|---|
+| checkout.apple pay checkout | Apple Pay sandbox not available on staging |
 
 ### Defects
 
@@ -91,6 +104,12 @@ We executed 15 of 18 planned tests (83.3%). 13 passed, 2 failed and 1 was skippe
 |---|---|---|---|---|
 | SL-402 | Percentage coupon applied to delivery fee as well as items | major | Open | pricing |
 
+#### Open Critical Major Age Days
+
+| Id | Severity | Age Days |
+|---|---|---|
+| SL-402 | major | 2 |
+
 ### Progress
 
 - **Release:** 2.4.0
@@ -99,3 +118,4 @@ We executed 15 of 18 planned tests (83.3%). 13 passed, 2 failed and 1 was skippe
 - **Environment:** staging (build 2026.10.28-rc3)
 - **Planned Tests:** 18
 - **Executed Pct:** 83.3
+- **Not Run:** 3

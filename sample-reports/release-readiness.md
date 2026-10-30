@@ -41,6 +41,7 @@ Two quality gates fail. The pass rate is 86.7% against a target of 95%, and ther
 ### Results
 
 - **Total:** 16
+- **Executed:** 15
 - **Passed:** 13
 - **Failed:** 2
 - **Errors:** 0
@@ -66,12 +67,24 @@ Two quality gates fail. The pass rate is 86.7% against a target of 95%, and ther
 | checkout.cash on delivery order | 6.4 |
 | smoke.login with email | 4.2 |
 
+#### Smoke
+
+- **Total:** 4
+- **Failed:** 0
+- **Skipped:** 0
+
 ### Failed Tests
 
 | Test | Message |
 |---|---|
 | orders.CreateOrderTest.applies 20 percent coupon to subtotal | Expected total 164.00 but was 160.00 |
 | checkout.order summary shows coupon discount | expected 'AED 164.00' to equal 'AED 160.00' |
+
+### Skipped Tests
+
+| Test | Reason |
+|---|---|
+| checkout.apple pay checkout | Apple Pay sandbox not available on staging |
 
 ### Defects
 
@@ -92,6 +105,12 @@ Two quality gates fail. The pass rate is 86.7% against a target of 95%, and ther
 |---|---|---|---|---|
 | SL-402 | Percentage coupon applied to delivery fee as well as items | major | Open | pricing |
 
+#### Open Critical Major Age Days
+
+| Id | Severity | Age Days |
+|---|---|---|
+| SL-402 | major | 2 |
+
 ### Risks
 
 | Id | Description | Likelihood | Impact | Mitigation | Owner | Score | Level |
@@ -104,8 +123,8 @@ Two quality gates fail. The pass rate is 86.7% against a target of 95%, and ther
 
 | Gate | Target | Actual | Passed |
 |---|---|---|---|
-| Pass rate | >= 95% | 86.7% | no |
+| Pass rate | >= 95% | 86.7% of 15 executed | no |
 | Open critical defects | <= 0 | 0 | yes |
 | Open major defects | <= 0 | 1 | no |
-| Smoke suite green | 0 failures | 0 failures | yes |
+| Smoke suite green | 0 failures, 0 skipped | 0 failed, 0 skipped of 4 | yes |
 | Unmitigated high risks | <= 0 | 0 | yes |

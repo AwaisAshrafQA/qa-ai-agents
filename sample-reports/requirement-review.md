@@ -45,8 +45,56 @@ One of three stories is ready. SL-101 has acceptance criteria but they are not m
 
 ### Stories
 
-| Story | Acceptance Criteria Count | Given When Then Lines | Vague Terms |
-|---|---|---|---|
-| SL-101 Apply a discount coupon at checkout | 3 | 0 | appropriate; should |
-| SL-102 Save cart for logged-in users | 0 | 0 | quickly; should |
-| SL-103 Guest checkout | 3 | 2 |  |
+- **Story:** SL-101 Apply a discount coupon at checkout
+- **Acceptance Criteria Count:** 3
+- **Given When Then Lines:** 0
+
+#### Ambiguous Terms
+
+##### Weak Phrase
+
+- appropriate
+
+##### Optional
+
+- can
+- should
+
+#### Structural Checks
+
+- touches money, accounts or personal data but states no non-functional requirement
+
+- **Story:** SL-102 Save cart for logged-in users
+- **Acceptance Criteria Count:** 0
+- **Given When Then Lines:** 0
+
+#### Ambiguous Terms
+
+##### Optional
+
+- can
+- should
+
+##### Subjective
+
+- quickly
+
+#### Structural Checks
+
+- no acceptance criteria
+- no 'so that' benefit (INVEST: Valuable)
+
+- **Story:** SL-103 Guest checkout
+- **Acceptance Criteria Count:** 3
+- **Given When Then Lines:** 2
+
+#### Ambiguous Terms
+
+##### Optional
+
+- can
+
+#### Structural Checks
+
+- acceptance criteria cover only positive scenarios
+- no 'so that' benefit (INVEST: Valuable)

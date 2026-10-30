@@ -1,4 +1,8 @@
-"""1. Requirement Review Agent: finds missing acceptance criteria, edge cases and unclear wording."""
+"""1. Requirement Review Agent: finds missing acceptance criteria, edge cases and unclear wording.
+
+Ambiguity terms come from the NASA ARM tool (Wilson, 1997) and the requirements-smell categories
+of Femmer et al. (JSS 2017); structural checks follow INVEST and ISTQB CTFL v4.0.1.
+"""
 
 from __future__ import annotations
 
@@ -9,18 +13,39 @@ from pydantic import BaseModel
 
 from qa_agents.core.base import Agent, facts_block, file_block
 
-VAGUE_TERMS = [
-    "should", "fast", "quickly", "user-friendly", "easy", "easily", "appropriate", "etc",
-    "as needed", "some", "various", "normally", "approximately", "optimal", "seamless",
-    "intuitive", "robust", "tbd", "if possible", "and/or", "reasonable",
-]
-_VAGUE_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in VAGUE_TERMS) + r")\b", re.IGNORECASE)
+AMBIGUITY = {
+    "weak_phrase": [
+        "adequate", "as a minimum", "as applicable", "as appropriate", "appropriate", "be able to", "be capable",
+        "but not limited to", "capability of", "capability to", "effective", "if practical", "normal", "normally",
+        "provide for", "timely", "tbd", "tbc",
+    ],
+    "optional": ["can", "may", "optionally", "should", "could", "might"],
+    "subjective": [
+        "user friendly", "user-friendly", "easy", "easily", "easy to use", "simple", "intuitive", "seamless",
+        "fast", "quick", "quickly", "slow", "robust", "flexible", "efficient", "cost effective", "nice", "modern", "clean",
+    ],
+    "loophole": ["as far as possible", "if possible", "where possible", "where feasible", "if needed", "as needed", "as required", "reasonable"],
+    "superlative": ["best", "highest", "lowest", "fastest", "optimal", "maximum possible", "minimum possible", "always", "never"],
+    "open_ended": ["etc", "and so on", "and/or", "some", "various", "several", "many", "few", "approximately", "about", "around", "similar"],
+}
+_TERM_RE = {
+    cat: re.compile(r"(?<![\w-])(" + "|".join(re.escape(t) for t in sorted(terms, key=len, reverse=True)) + r")(?![\w-])", re.IGNORECASE)
+    for cat, terms in AMBIGUITY.items()
+}
 _GWT_RE = re.compile(r"^\s*(?:[-*]|\d+\.)?\s*(given|when|then)\b", re.IGNORECASE)
+_STORY_RE = re.compile(r"\bas an?\b.+\bi (?:want|need|can)\b", re.IGNORECASE)
+_BENEFIT_RE = re.compile(r"\bso that\b|\bin order to\b", re.IGNORECASE)
+_NEGATIVE_AC_RE = re.compile(r"\b(invalid|error|fail|fails|reject|declin|expired|not allowed|cannot|can't|unauthori|denied|empty|missing|exceed|limit)\w*", re.IGNORECASE)
+_NFR_RE = re.compile(r"\b(seconds?|ms|response time|performance|load|secur|encrypt|permission|role|audit|log|accessib|wcag|screen reader|availability|uptime|gdpr|pii|privacy)\w*", re.IGNORECASE)
+_SENSITIVE_RE = re.compile(r"\b(pay|payment|card|checkout|price|discount|coupon|refund|password|login|personal|address|email|phone|upload)\w*", re.IGNORECASE)
 
 
 class Issue(BaseModel):
     story: str
-    category: Literal["missing_acceptance_criteria", "edge_case", "ambiguity", "contradiction", "non_functional", "dependency"]
+    category: Literal[
+        "missing_acceptance_criteria", "edge_case", "ambiguity", "contradiction", "non_functional",
+        "dependency", "testability", "story_structure",
+    ]
     severity: Literal["high", "medium", "low"]
     finding: str
     question_for_product_owner: str
@@ -55,22 +80,50 @@ def split_stories(text: str) -> list[tuple[str, list[str]]]:
     return stories or [("Requirements", text.splitlines())]
 
 
-def story_facts(title: str, body: list[str]) -> dict:
-    criteria, in_ac = 0, False
+def acceptance_criteria(body: list[str]) -> list[str]:
+    criteria, in_ac = [], False
     for line in body:
-        if re.search(r"acceptance criteria", line, re.IGNORECASE):
+        if re.search(r"acceptance criteria|^\s*AC\s*:", line, re.IGNORECASE):
             in_ac = True
             continue
-        if in_ac and re.match(r"^\s*(?:[-*]|\d+\.)\s+\S", line):
-            criteria += 1
-        elif in_ac and line.strip() and not line.startswith(" ") and line.strip().endswith(":"):
+        bullet = re.match(r"^\s*(?:[-*]|\d+[.)])\s+(\S.*)", line)
+        if in_ac and bullet:
+            criteria.append(bullet.group(1))
+        elif in_ac and line.strip() and not bullet and line.strip().endswith(":"):
             in_ac = False
-    vague = sorted({m.group(1).lower() for line in body + [title] for m in _VAGUE_RE.finditer(line)})
+    criteria += [l.strip() for l in body if _GWT_RE.match(l) and l.strip() not in criteria and not re.match(r"^\s*(?:[-*]|\d+[.)])", l)]
+    return criteria
+
+
+def story_facts(title: str, body: list[str]) -> dict:
+    text = "\n".join([title, *body])
+    criteria = acceptance_criteria(body)
+    ambiguous = {}
+    for cat, rx in _TERM_RE.items():
+        found = sorted({m.group(1).lower() for m in rx.finditer(text)})
+        if found:
+            ambiguous[cat] = found
+    checks = []
+    if not criteria:
+        checks.append("no acceptance criteria")
+    elif not any(_NEGATIVE_AC_RE.search(c) for c in criteria):
+        checks.append("acceptance criteria cover only positive scenarios")
+    if _STORY_RE.search(text) and not _BENEFIT_RE.search(text):
+        checks.append("no 'so that' benefit (INVEST: Valuable)")
+    if not _STORY_RE.search(text) and len(text) > 40:
+        checks.append("not written as 'As a <role>, I want <goal>, so that <benefit>'")
+    if len(criteria) > 10:
+        checks.append(f"{len(criteria)} acceptance criteria: may be too large to estimate (INVEST: Small)")
+    if re.search(r"\b(and|or)\b", title, re.IGNORECASE) and not re.search(r"\b(and|or)\b.*\b(and|or)\b", title, re.IGNORECASE) and len(title.split()) > 4:
+        checks.append("title joins two goals with and/or: may not be singular")
+    if _SENSITIVE_RE.search(text) and not _NFR_RE.search(text):
+        checks.append("touches money, accounts or personal data but states no non-functional requirement")
     return {
         "story": title,
-        "acceptance_criteria_count": criteria,
+        "acceptance_criteria_count": len(criteria),
         "given_when_then_lines": sum(1 for line in body if _GWT_RE.match(line)),
-        "vague_terms": vague,
+        "ambiguous_terms": ambiguous,
+        "structural_checks": checks,
     }
 
 
@@ -83,11 +136,14 @@ class RequirementReviewAgent(Agent):
     output_model = RequirementReview
     system_prompt = """Task: review user stories before sprint planning, as a QA engineer in refinement.
 For each story decide if it is ready for development and testing.
-Find: missing or untestable acceptance criteria, unhandled edge cases (empty, max, concurrent,
-offline, permissions, time zones, currency, localisation), ambiguous wording, contradictions,
-missing non-functional requirements (performance, security, accessibility) and hidden dependencies.
-Phrase each finding as a concrete question the product owner can answer.
-Suggest acceptance criteria in Given/When/Then form, testable and measurable."""
+Use the locally computed ambiguous terms and structural checks as leads (dismiss false positives,
+e.g. "can" in "the shopper can enter a code" is fine), then apply the expert checklist: requirement
+quality (29148), INVEST, acceptance-criteria quality, edge-case heuristics, non-functional needs
+(ISO 25010, WCAG 2.2 AA) and contradictions between stories. Phrase each finding as a concrete
+question the product owner can answer. Suggest acceptance criteria in Given/When/Then form with
+concrete values, covering negative scenarios too.
+Readiness: not_ready if there are no usable acceptance criteria or a high-severity gap;
+needs_clarification for open questions that would change the tests; ready otherwise."""
 
     def analyse(self, files):
         stories = []

@@ -1,31 +1,49 @@
 ---
 name: qa-flaky-tests
-description: Find flaky and broken tests from execution history using fail rate, flip rate, duration variance and error signatures, then explain the root causes and fixes. Use when the user asks about flaky tests, unstable pipelines or which tests to quarantine.
+description: Find flaky and broken tests from execution history using flip rate (Apple), fail rate, duration variance, error signatures and per-environment failures, then explain root causes using the flaky-test research taxonomy (async wait, concurrency, order dependency, time, network...) with how to confirm, fix and whether to quarantine. Use when the user asks about flaky tests, unstable pipelines or which tests to quarantine.
 ---
 
 # Flaky Test Analysis
 
-## 1. Get the facts
+## 1. Inputs
 
-You need a history CSV with the columns `run_id,timestamp,test,status,duration_ms,error,env`. If the user has JUnit reports from several runs instead, build that CSV from them first. Then run:
+You need an execution history CSV. Common export column names are recognised, for example Build, Date, Test Name, Outcome, Duration and Environment.
+
+If the user only has JUnit reports from several runs, build the CSV from them first, with the columns `run_id,timestamp,test,status,duration_ms,error,env`. Fewer than 5 runs per test is not enough to judge; say so.
+
+## 2. Compute the facts
 
 ```bash
 qa-agents facts flaky-tests <execution_history.csv>
 ```
 
-If `qa-agents` is missing, install it: `pip install git+https://github.com/AwaisAshrafQA/qa-ai-agents`.
+`facts.flaky_or_broken` gives each problem test:
+- runs and fail rate
+- flip rate, overall and over the last 10 runs
+- duration variance
+- the first failing run and the last 3 outcomes
+- top error signatures
+- failures by environment (failed/total)
 
-`facts.flaky_or_broken` gives each problem test's runs, fail rate, flip rate, duration variance, top error signatures and failures by environment. These come from code: use them exactly.
+A test that passed and then failed every run since is labelled `broken`, which means a regression, not flakiness.
 
-## 2. Analyse
+If `qa-agents` is missing, run `pip install git+https://github.com/AwaisAshrafQA/qa-ai-agents`. If it still can't run, compute the flip rate yourself as transitions / (runs - 1), using [reference.md](reference.md), and say so.
 
-Follow `instructions`. Open the test code for each flaky test: the root cause is usually visible there (fixed waits, shared data, order dependence).
+## 3. Analyse
 
-## 3. Report
+Follow `instructions` (expert checklist: Luo et al. and later categories, detection methods, metrics, quarantine policy). Open each flaky test's code: the cause is usually visible, such as sleeps, shared data, order dependence, unseeded randomness or time-zone assumptions.
 
-A summary, one row per test (classification, root-cause type, likely cause, evidence, fix, quarantine yes/no), then patterns and prevention.
+## 4. Report
 
-## 4. Offer next steps
+A summary, then one row per test (classification, root-cause type, likely cause, evidence, how to confirm, fix, quarantine yes/no), then patterns across tests and prevention steps.
 
-- Rerun a flaky test several times in a row (e.g. Playwright `--repeat-each=10`) to confirm it. Ask first.
-- Apply the fix, or add the project's quarantine tag with an owner and a fix-by date.
+## 5. Quality bar (check before presenting)
+
+- Broken tests are reported as product defects or regressions, not as flakiness.
+- Every root cause cites the statistic or code line that supports it.
+- A quarantine recommendation always comes with an owner and a fix-by date.
+
+## 6. Next steps (ask first)
+
+- Confirm a test by rerunning it in a loop, e.g. Playwright `--repeat-each=20`, pytest-rerunfailures or Surefire `rerunFailingTestsCount`, or in a different order.
+- Apply the fix, or add the project's quarantine tag.

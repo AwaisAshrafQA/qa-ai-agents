@@ -47,7 +47,10 @@ def test_openapi_gaps(examples):
 def test_requirement_story_facts(examples):
     stories = [story_facts(t, b) for t, b in split_stories((examples / "requirement-review" / "stories.md").read_text())]
     assert [s["acceptance_criteria_count"] for s in stories] == [3, 0, 3]
-    assert "quickly" in stories[1]["vague_terms"]
+    assert "quickly" in stories[1]["ambiguous_terms"]["subjective"]
+    assert "appropriate" in stories[0]["ambiguous_terms"]["weak_phrase"]
+    assert "no acceptance criteria" in stories[1]["structural_checks"]
+    assert "acceptance criteria cover only positive scenarios" not in stories[0]["structural_checks"]  # "invalid coupons"
 
 
 def test_boundary_limits():
@@ -65,7 +68,7 @@ def test_code_scan_rules():
         "// Thread.sleep(1000) in a comment is ignored",
     ]
     rules = {(f["line"], f["rule"]) for f in scan_lines("t.ts", lines)}
-    assert {(1, "fixed_wait"), (2, "unstable_locator"), (3, "hardcoded_data"), (4, "weak_assertion")} <= rules
+    assert {(1, "fixed_wait"), (2, "unstable_locator"), (3, "hardcoded_secret"), (4, "weak_assertion")} <= rules
     assert not any(line == 5 for line, _ in rules)
 
 
@@ -89,7 +92,7 @@ def test_flaky_history(examples):
     assert labels["checkout.spec.ts > guest can apply a coupon"] == "flaky"
     assert labels["search.spec.ts > filters products by price"] == "broken"
     cancel = next(s for s in facts["flaky_or_broken"] if "CancelOrderTest" in s["test"])
-    assert cancel["failures_by_env"] == {"staging-b": 4}
+    assert cancel["failures_by_env"] == {"staging-b": "4/4"}
     assert facts["label_counts"]["stable"] == 2
 
 

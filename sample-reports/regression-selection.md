@@ -37,6 +37,7 @@ The change touches discount calculation and coupon rules (pricing), the order su
 ## Computed Locally
 
 - **Changed Files:** 5
+- **Full Suite Recommended:** no
 - **Estimated Minutes Must and Should:** 25
 
 ### Changed Modules
@@ -57,6 +58,10 @@ The change touches discount calculation and coupon rules (pricing), the order su
 ### Unmapped Files
 
 - config/feature_flags.yaml
+- db/migrations/0042_add_coupon_usage_index.sql
+
+### Migration Files
+
 - db/migrations/0042_add_coupon_usage_index.sql
 
 ### Candidate Tests

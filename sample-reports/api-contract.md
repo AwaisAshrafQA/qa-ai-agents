@@ -56,12 +56,18 @@ The ShopLite Orders API has 3 endpoints and a reasonable request schema for POST
 
 - **Title:** ShopLite Orders API
 - **Version:** 1.4.0
+- **Spec Format:** OpenAPI 3.0.3
 - **Endpoint Count:** 3
+- **Endpoints With Gaps:** 3
+
+### Spec Level Gaps
+
+- no servers defined
 
 ### Endpoints
 
-| Endpoint | Summary | Path and Query Params | Request Fields | Documented Responses | Gaps |
-|---|---|---|---|---|---|
-| POST /orders | Create an order from the current cart |  | field: items, type: array, required: yes, constraints: minItems: 1; field: items[].sku, type: string, required: yes, constraints: ; field: items[].quantity, type: integer, required: yes, constraints: minimum: 1; field: paymentMethod, type: string, required: yes, constraints: enum: card; cod; field: couponCode, type: string, required: no, constraints: ; field: deliveryNote, type: string, required: no, constraints:  | 201; 400 | string field 'items[].sku' has no length, format or pattern; string field 'couponCode' has no length, format or pattern; string field 'deliveryNote' has no length, format or pattern |
-| GET /orders/{orderId} | Get an order | orderId |  | 200 | no 4xx response documented; no security requirement declared |
-| POST /orders/{orderId}/cancel | Cancel an order | orderId |  | 200 | no 4xx response documented; 200 response has no schema |
+| Endpoint | Summary | Deprecated | Secured | Parameters | Request Fields | Documented Responses | Gaps |
+|---|---|---|---|---|---|---|---|
+| POST /orders | Create an order from the current cart | no | yes |  | field: items, type: array, required: yes, nullable: no, read_only: no, constraints: minItems: 1; field: items[].sku, type: string, required: yes, nullable: no, read_only: no, constraints: ; field: items[].quantity, type: integer, required: yes, nullable: no, read_only: no, constraints: minimum: 1; field: paymentMethod, type: string, required: yes, nullable: no, read_only: no, constraints: enum: card; cod; field: couponCode, type: string, required: no, nullable: no, read_only: no, constraints: ; field: deliveryNote, type: string, required: no, nullable: no, read_only: no, constraints:  | 201; 400 | no operationId; secured but 401 not documented; array field 'items' has no maxItems; string field 'items[].sku' has no maxLength, format, pattern or enum; string field 'couponCode' has no maxLength, format, pattern or enum; string field 'deliveryNote' has no maxLength, format, pattern or enum |
+| GET /orders/{orderId} | Get an order | no | no | path:orderId* |  | 200 | no operationId; no 4xx response documented; no security requirement declared; path parameter 'orderId' has no format, pattern or maxLength |
+| POST /orders/{orderId}/cancel | Cancel an order | no | yes | path:orderId* |  | 200 | no operationId; no 4xx response documented; 200 response has no schema; secured but 401 not documented; path parameter 'orderId' has no format, pattern or maxLength |

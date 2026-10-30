@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from qa_agents.core.base import Agent, by_suffix, facts_block, file_block
 from qa_agents.core.llm import AgentError
 from qa_agents.tools.junit import parse_junit
+from qa_agents.tools.text import error_signature
 
 Category = Literal["app_defect", "automation_issue", "test_data", "environment", "unknown"]
 
@@ -77,19 +78,40 @@ Finish with cross-failure patterns (same root cause, same service, same time win
         reports = by_suffix(files, ".xml")
         if not reports:
             raise AgentError("failure-analysis needs at least one JUnit XML report.")
-        failed = []
+        failed, rerun_passes, total = [], [], 0
         for f in reports:
-            for r in parse_junit(f.text()):
+            results = parse_junit(f.text(), f.name)
+            total += len(results)
+            for r in results:
+                if r.flaky:
+                    rerun_passes.append({"test": r.full_name, "first_failure": r.message[:200]})
                 if r.status in ("failed", "error"):
                     failed.append(
                         {
                             "test": r.full_name,
                             "suite": r.suite,
+                            "kind": "assertion failure" if r.status == "failed" else "error (unexpected exception)",
                             "message": r.message[:300],
+                            "reruns": r.reruns,
                             "heuristic_category": heuristic_category(f"{r.message}\n{r.details}"),
                         }
                     )
-        return {"failed_tests": len(failed), "failures": failed}
+        clusters: dict[str, list[str]] = {}
+        for f in failed:
+            clusters.setdefault(error_signature(f["message"]), []).append(f["test"])
+        facts = {
+            "tests_in_reports": total,
+            "failed_tests": len(failed),
+            "failures": failed,
+            "shared_error_signatures": [{"signature": s, "tests": t} for s, t in clusters.items() if len(t) > 1],
+        }
+        if rerun_passes:
+            facts["passed_only_on_rerun"] = rerun_passes
+        if total and len(failed) / total >= 0.5 and len(failed) >= 5:
+            facts["warning"] = f"{len(failed)} of {total} tests failed: check for an environment-wide problem before triaging one by one."
+        if not failed:
+            facts["note"] = "No failed tests in the reports."
+        return facts
 
     def build_prompt(self, files, facts):
         docs = "\n\n".join(file_block(f) for f in files)
