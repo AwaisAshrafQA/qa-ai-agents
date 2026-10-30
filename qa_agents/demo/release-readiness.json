@@ -1,0 +1,23 @@
+{
+  "decision": "no_go",
+  "confidence": "high",
+  "rationale": "Two quality gates fail. The pass rate is 86.7% against a target of 95%, and there is 1 open major defect against a limit of 0. Both come from SL-402, which undercharges every percentage-coupon order, a direct revenue impact that also matches the top-ranked risk R1 (high likelihood, high impact). The smoke suite is green and there are no open critical defects, so the release is close: one fix and re-test should clear both gates.",
+  "blocking_issues": [
+    "SL-402: percentage coupon calculated on subtotal plus delivery fee (open, major)",
+    "Pass rate 86.7% is below the 95% gate"
+  ],
+  "conditions": [
+    "SL-402 is fixed in rc4 and verified by PRC-001 and CHK-002",
+    "The pricing and checkout regression suites are re-run with a pass rate of at least 95%",
+    "Alternative if the fix slips: ship with percentage coupons switched off via the coupons.percent flag, with Product sign-off"
+  ],
+  "residual_risks": [
+    {"risk": "R2: the coupon usage index migration may lock the coupon_usage table", "level": "high", "mitigation": "Run it in the low-traffic window; it has been rehearsed on a production-sized copy"},
+    {"risk": "R3: Apple Pay is untested on staging", "level": "low", "mitigation": "None recorded. Add a production smoke test right after deployment and monitor Apple Pay success rates"}
+  ],
+  "recommendations": [
+    "Ship coupon changes behind the coupons.percent flag so they can be switched off quickly",
+    "Watch average discount per order and the coupon error rate for 48 hours after release",
+    "Keep a rollback plan for migration 0042 and a hotfix window open for the first 24 hours"
+  ]
+}

@@ -1,0 +1,6 @@
+id,title,module,severity,status,created
+SL-311,Coupon applied twice on double click,pricing,major,closed,2026-07-02
+SL-342,Discount rounding off by 0.01 AED,pricing,minor,closed,2026-08-14
+SL-367,Expired coupon accepted after midnight UTC,pricing,critical,closed,2026-09-03
+SL-371,Order summary hides delivery fee on mobile,checkout,minor,closed,2026-09-10
+SL-380,Invoice PDF missing coupon line,invoices,major,closed,2026-09-22

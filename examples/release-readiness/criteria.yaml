@@ -1,0 +1,7 @@
+release: 2.4.0
+criteria:
+  min_pass_rate: 95
+  max_open_critical: 0
+  max_open_major: 0
+  require_smoke_pass: true
+  max_high_risks_without_mitigation: 0

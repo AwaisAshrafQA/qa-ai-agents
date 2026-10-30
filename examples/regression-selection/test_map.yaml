@@ -1,0 +1,29 @@
+modules:
+  pricing:
+    paths: ["src/pricing/*"]
+    tests:
+      - { id: PRC-001, name: Percentage coupon applies to subtotal only, priority: P1, minutes: 2 }
+      - { id: PRC-002, name: Fixed coupon never makes total negative, priority: P1, minutes: 2 }
+      - { id: PRC-003, name: Coupon minimum subtotal 100 AED, priority: P2, minutes: 2 }
+      - { id: PRC-004, name: Coupon usage limit per shopper, priority: P2, minutes: 3 }
+  checkout:
+    paths: ["src/checkout/*"]
+    depends_on: [pricing]
+    tests:
+      - { id: CHK-001, name: Guest checkout with card, priority: P1, tags: [smoke], minutes: 4 }
+      - { id: CHK-002, name: Order summary shows discount and delivery fee, priority: P1, minutes: 3 }
+      - { id: CHK-003, name: Cash on delivery order, priority: P2, minutes: 4 }
+  invoices:
+    paths: ["src/invoices/*"]
+    depends_on: [pricing]
+    tests:
+      - { id: INV-001, name: Invoice PDF shows applied discount, priority: P2, minutes: 3 }
+  search:
+    paths: ["src/search/*"]
+    tests:
+      - { id: SRC-001, name: Search returns products, priority: P1, tags: [smoke], minutes: 2 }
+      - { id: SRC-002, name: Price filter, priority: P2, minutes: 2 }
+  profile:
+    paths: ["src/profile/*"]
+    tests:
+      - { id: PRF-001, name: Update delivery address, priority: P3, minutes: 2 }

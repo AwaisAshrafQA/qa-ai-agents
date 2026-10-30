@@ -1,0 +1,27 @@
+{
+  "summary": "Both files follow patterns that cause flaky, slow and hard-to-maintain tests: 5 fixed waits, positional XPath and CSS locators, hardcoded URLs and credentials, and assertions that pass even when the feature is broken. The two coupon tests in checkout.spec.ts duplicate the same setup. Changes are required before merge.",
+  "verdict": "request_changes",
+  "comments": [
+    {"file": "checkout.spec.ts", "line": 13, "rule": "weak_assertion", "severity": "high", "problem": "toBeTruthy() passes for any non-empty text, so the test cannot detect a wrong total such as 160.00 instead of 164.00.", "fix": "await expect(page.getByTestId('order-total')).toHaveText('AED 164.00');"},
+    {"file": "checkout.spec.ts", "line": 25, "rule": "weak_assertion", "severity": "high", "problem": "A locator object is always defined, so this assertion can never fail.", "fix": "await expect(page.getByRole('alert')).toHaveText('This coupon has expired');"},
+    {"file": "checkout.spec.ts", "line": 32, "rule": "weak_assertion", "severity": "medium", "problem": "status < 500 accepts 4xx errors as success.", "fix": "expect(response.status()).toBe(200), then assert the new total in the response body."},
+    {"file": "checkout.spec.ts", "line": 8, "rule": "fixed_wait", "severity": "high", "problem": "A 3 second sleep wastes time when the app is fast and is still not enough when it is slow, which matches the timeout seen in CI.", "fix": "Remove the wait; Playwright auto-waits on actions. Wait for the state you need: await expect(page.getByLabel('Coupon')).toBeEditable();"},
+    {"file": "checkout.spec.ts", "line": 11, "rule": "fixed_wait", "severity": "medium", "problem": "A fixed wait after Apply.", "fix": "await page.waitForResponse(r => r.url().includes('/api/coupons') && r.ok()); or assert the discount line directly."},
+    {"file": "checkout.spec.ts", "line": 5, "rule": "unstable_locator", "severity": "high", "problem": "Positional XPath breaks when the layout changes.", "fix": "page.getByRole('button', { name: 'Checkout as guest' })"},
+    {"file": "checkout.spec.ts", "line": 7, "rule": "unstable_locator", "severity": "high", "problem": ".css-1x9fz2a is a generated class name that changes on every build; this is the locator in the CI timeout.", "fix": "Add data-testid=\"continue-to-payment\" and use page.getByTestId('continue-to-payment')"},
+    {"file": "checkout.spec.ts", "line": 4, "rule": "hardcoded_data", "severity": "medium", "problem": "The environment URL is hardcoded, so the test cannot run against other environments.", "fix": "Set baseURL in playwright.config.ts from process.env.BASE_URL and use page.goto('/cart')."},
+    {"file": "checkout.spec.ts", "line": 17, "rule": "duplicate_code", "severity": "medium", "problem": "Lines 17-21 repeat the guest setup from lines 4-8.", "fix": "Move it to a fixture or a CheckoutPage.startAsGuest(email) helper."},
+    {"file": "checkout.spec.ts", "line": 30, "rule": "other", "severity": "medium", "problem": "The test depends on an existing cart having at least 2 items, so it is order-dependent.", "fix": "Seed the cart through the API in beforeEach so each test owns its data."},
+    {"file": "LoginTest.java", "line": 17, "rule": "hardcoded_data", "severity": "high", "problem": "A real-looking admin password is committed in the source.", "fix": "Read credentials from environment variables or a secrets manager, e.g. System.getenv(\"QA_ADMIN_PASSWORD\")."},
+    {"file": "LoginTest.java", "line": 16, "rule": "unstable_locator", "severity": "high", "problem": "An absolute XPath from /html/body breaks on any DOM change.", "fix": "By.id(\"email\") or By.cssSelector(\"[data-testid='email']\")"},
+    {"file": "LoginTest.java", "line": 19, "rule": "fixed_wait", "severity": "high", "problem": "Thread.sleep(5000) adds 5 seconds to every run and still races the page.", "fix": "new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOfElementLocated(By.id(\"welcome\")));"},
+    {"file": "LoginTest.java", "line": 30, "rule": "weak_assertion", "severity": "high", "problem": "assertTrue(true) means the invalid-login test can never fail.", "fix": "Assert the exact error message and that the URL is still /login."},
+    {"file": "LoginTest.java", "line": 11, "rule": "other", "severity": "medium", "problem": "The driver is created in a field and never closed, so tests share one browser and leak processes.", "fix": "Create the driver in @BeforeMethod and call driver.quit() in @AfterMethod (or use a base test class)."}
+  ],
+  "refactoring_suggestions": [
+    "Introduce page objects (CartPage, CheckoutPage, LoginPage) so locators live in one place.",
+    "Agree a data-testid convention with the frontend team for all interactive elements.",
+    "Add an ESLint rule (playwright/no-wait-for-timeout) and a Checkstyle rule that bans Thread.sleep in test code.",
+    "Create test users and carts through the API in fixtures instead of the UI."
+  ]
+}

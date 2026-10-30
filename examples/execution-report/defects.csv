@@ -1,0 +1,8 @@
+id,title,severity,status,module,created
+SL-402,Percentage coupon applied to delivery fee as well as items,major,Open,pricing,2026-10-28
+SL-398,Coupon field accepts 13 characters,minor,In Progress,pricing,2026-10-25
+SL-395,Order confirmation email missing coupon line,minor,Open,notifications,2026-10-24
+SL-390,Checkout button overlaps footer on 320px screens,trivial,Open,checkout,2026-10-21
+SL-387,Refund not triggered when cancelling a paid order,critical,Closed,payments,2026-10-18
+SL-384,Search price filter returns empty list,major,Closed,search,2026-10-16
+SL-381,Address form loses state after validation error,minor,Closed,profile,2026-10-14

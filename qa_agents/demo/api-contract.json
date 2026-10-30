@@ -1,0 +1,37 @@
+{
+  "summary": "The ShopLite Orders API has 3 endpoints and a reasonable request schema for POST /orders, but the contract has gaps that let invalid data through and leave error behaviour undefined. GET /orders/{orderId} has no auth and no 404, the cancel endpoint documents no errors or response body, and three string fields have no limits.",
+  "request_validations": [
+    {"endpoint": "POST /orders", "field": "items", "rule": "Required, array, at least 1 item", "why": "An order with no items must never be created"},
+    {"endpoint": "POST /orders", "field": "items[].quantity", "rule": "Integer >= 1, with an upper limit (e.g. <= 99)", "why": "Without a maximum, a huge quantity can break stock and pricing"},
+    {"endpoint": "POST /orders", "field": "items[].sku", "rule": "Required string matching the SKU pattern, max 32 characters", "why": "Unbounded strings risk injection and log flooding"},
+    {"endpoint": "POST /orders", "field": "paymentMethod", "rule": "Required; enum card | cod; case-sensitive", "why": "Unknown payment methods must be rejected before calling the payment provider"},
+    {"endpoint": "POST /orders", "field": "couponCode", "rule": "Optional; 6-12 alphanumeric characters", "why": "Matches the business rule in SL-101 and blocks malformed codes early"},
+    {"endpoint": "POST /orders", "field": "deliveryNote", "rule": "Optional; max 250 characters; strip HTML", "why": "Free text shown to couriers is a stored-XSS and size risk"}
+  ],
+  "negative_tests": [
+    {"endpoint": "POST /orders", "title": "Empty items array", "request_change": "items: []", "expected_status": 400, "expected_error": "items must contain at least 1 item"},
+    {"endpoint": "POST /orders", "title": "Zero quantity", "request_change": "items[0].quantity: 0", "expected_status": 400, "expected_error": "quantity must be >= 1"},
+    {"endpoint": "POST /orders", "title": "Quantity as a string", "request_change": "items[0].quantity: \"2\"", "expected_status": 400, "expected_error": "quantity must be an integer"},
+    {"endpoint": "POST /orders", "title": "Unsupported payment method", "request_change": "paymentMethod: \"crypto\"", "expected_status": 400, "expected_error": "paymentMethod must be one of card, cod"},
+    {"endpoint": "POST /orders", "title": "Missing bearer token", "request_change": "Remove the Authorization header", "expected_status": 401, "expected_error": "Authentication required"},
+    {"endpoint": "POST /orders", "title": "Coupon with special characters", "request_change": "couponCode: \"SAVE-20!\"", "expected_status": 400, "expected_error": "couponCode has an invalid format"},
+    {"endpoint": "GET /orders/{orderId}", "title": "Unknown order id", "request_change": "orderId: ord-does-not-exist", "expected_status": 404, "expected_error": "Order not found"},
+    {"endpoint": "GET /orders/{orderId}", "title": "Another shopper's order", "request_change": "Use a token for user B to read user A's order", "expected_status": 404, "expected_error": "Order not found (do not reveal that it exists)"},
+    {"endpoint": "POST /orders/{orderId}/cancel", "title": "Cancel a shipped order", "request_change": "Order in status shipped", "expected_status": 409, "expected_error": "Order can no longer be cancelled"}
+  ],
+  "schema_checks": [
+    {"endpoint": "POST /orders", "status": 201, "assertion": "Body validates against the Order schema; id, status and total are present; status is pending or paid"},
+    {"endpoint": "POST /orders", "status": 201, "assertion": "total is a number >= 0 with 2 decimal places, and currency is a 3-letter ISO code"},
+    {"endpoint": "POST /orders", "status": 400, "assertion": "Error body follows a single error schema (code, message, field)"},
+    {"endpoint": "GET /orders/{orderId}", "status": 200, "assertion": "Body validates against the Order schema, with no extra undocumented fields"},
+    {"endpoint": "POST /orders/{orderId}/cancel", "status": 200, "assertion": "Returns the Order with status cancelled (once the spec documents this)"}
+  ],
+  "spec_gaps": [
+    {"endpoint": "GET /orders/{orderId}", "gap": "no security requirement declared", "risk": "high", "recommendation": "Add bearerAuth and document that shoppers can only read their own orders"},
+    {"endpoint": "GET /orders/{orderId}", "gap": "no 4xx response documented", "risk": "medium", "recommendation": "Document 401 and 404 with the shared error schema"},
+    {"endpoint": "POST /orders/{orderId}/cancel", "gap": "200 response has no schema", "risk": "medium", "recommendation": "Return the updated Order so clients and tests can assert the new status"},
+    {"endpoint": "POST /orders/{orderId}/cancel", "gap": "no 4xx response documented", "risk": "medium", "recommendation": "Document 401, 404 and 409 (not cancellable)"},
+    {"endpoint": "POST /orders", "gap": "string fields items[].sku, couponCode and deliveryNote have no length, format or pattern", "risk": "medium", "recommendation": "Add maxLength and pattern so the contract enforces the business rules"},
+    {"endpoint": "POST /orders", "gap": "400 response has no schema", "risk": "low", "recommendation": "Define a reusable Error schema in components and reference it from every 4xx"}
+  ]
+}

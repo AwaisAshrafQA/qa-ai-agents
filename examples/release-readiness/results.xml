@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="ShopLite release 2.4.0 regression">
+  <testsuite name="smoke" tests="4">
+    <testcase classname="smoke" name="home page loads" time="2.1"/>
+    <testcase classname="smoke" name="search returns products" time="3.4"/>
+    <testcase classname="smoke" name="guest checkout with card" time="14.8"/>
+    <testcase classname="smoke" name="login with email" time="4.2"/>
+  </testsuite>
+  <testsuite name="api-orders" tests="6" failures="1">
+    <testcase classname="orders.CreateOrderTest" name="creates order with card payment" time="1.8"/>
+    <testcase classname="orders.CreateOrderTest" name="rejects empty items" time="0.4"/>
+    <testcase classname="orders.CreateOrderTest" name="applies 20 percent coupon to subtotal" time="1.4">
+      <failure message="Expected total 164.00 but was 160.00">AssertionError: Expected total 164.00 but was 160.00</failure>
+    </testcase>
+    <testcase classname="orders.GetOrderTest" name="returns 404 for unknown order" time="0.3"/>
+    <testcase classname="orders.CancelOrderTest" name="cancels a pending order" time="1.1"/>
+    <testcase classname="orders.CancelOrderTest" name="cannot cancel a shipped order" time="0.9"/>
+  </testsuite>
+  <testsuite name="web-checkout" tests="6" failures="1" skipped="1">
+    <testcase classname="checkout" name="cash on delivery order" time="6.4"/>
+    <testcase classname="checkout" name="order summary shows delivery fee" time="3.1"/>
+    <testcase classname="checkout" name="order summary shows coupon discount" time="4.0">
+      <failure message="expected 'AED 164.00' to equal 'AED 160.00'">AssertionError: expected 'AED 164.00' to equal 'AED 160.00'</failure>
+    </testcase>
+    <testcase classname="checkout" name="invoice PDF shows applied discount" time="9.7"/>
+    <testcase classname="checkout" name="saved card checkout" time="7.9"/>
+    <testcase classname="checkout" name="apple pay checkout" time="0.0">
+      <skipped message="Apple Pay sandbox not available on staging"/>
+    </testcase>
+  </testsuite>
+</testsuites>

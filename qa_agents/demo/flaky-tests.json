@@ -1,0 +1,20 @@
+{
+  "summary": "Of 6 tests across 12 nightly runs, 3 are flaky and 1 is broken. Each flaky test has a different cause: a wait or locator problem, an environment-specific dependency, and shared test data. The price filter test started failing on every run from run 9, which points to a regression rather than flakiness.",
+  "insights": [
+    {"test": "checkout.spec.ts > guest can apply a coupon", "classification": "flaky", "root_cause_type": "timing_or_wait", "likely_root_cause": "The test clicks a build-generated CSS class after a fixed 3 second wait. When the page renders slowly, the click times out at 10 seconds.", "evidence": "72.7% flip rate; every failure is the same locator timeout; duration varies by 25.6%; failures appear on both environments.", "recommended_fix": "Use a data-testid locator and web-first assertions instead of waitForTimeout.", "quarantine": true},
+    {"test": "orders.CancelOrderTest > cancels a paid order", "classification": "flaky", "root_cause_type": "environment_instability", "likely_root_cause": "All 4 failures happened on staging-b, where the refunds sandbox connection times out.", "evidence": "failures_by_env: staging-b 4, staging-a 0; 111.8% duration variation caused by 30 second timeouts; a single error signature.", "recommended_fix": "Fix the network route from staging-b to the refunds sandbox, and add a dependency health check before refund tests.", "quarantine": false},
+    {"test": "checkout.spec.ts > registered user checks out with saved card", "classification": "flaky", "root_cause_type": "shared_test_data", "likely_root_cause": "The fixture creates users with predictable emails that collide with leftovers from earlier runs.", "evidence": "Every failure is a 409 'user already exists'; duration is stable (5.3%), which rules out timing.", "recommended_fix": "Use a unique email per run and clean up users in teardown.", "quarantine": false},
+    {"test": "search.spec.ts > filters products by price", "classification": "broken", "root_cause_type": "unknown", "likely_root_cause": "A consistent failure since run 9 (0 results for 50-100 AED) suggests a regression in the search price filter or its index.", "evidence": "Flip rate is only 9.1%: it passed for 8 runs, then failed in every run from run 9.", "recommended_fix": "Treat this as a product defect: check the changes merged before run 9 and re-index search on staging.", "quarantine": false}
+  ],
+  "patterns": [
+    "Failures are spread across different root causes; there is no systemic framework problem.",
+    "Environment-specific failures cluster on staging-b, so environment health should be part of the nightly report.",
+    "Two of the four problems are test-design issues (waits, data) that review rules could prevent."
+  ],
+  "prevention": [
+    "Block waitForTimeout and Thread.sleep with lint rules in CI.",
+    "Have every fixture generate unique data and clean up after itself.",
+    "Track flip rate weekly and quarantine tests above 30% automatically, with an owner and a fix-by date.",
+    "Run a dependency health check at the start of each pipeline and tag failures it explains as environment issues."
+  ]
+}

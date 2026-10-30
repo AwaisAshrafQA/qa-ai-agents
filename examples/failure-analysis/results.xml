@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="ShopLite nightly" tests="8" failures="3" errors="1">
+  <testsuite name="api-orders" tests="4" failures="1" errors="1">
+    <testcase classname="orders.CreateOrderTest" name="creates order with card payment" time="1.82"/>
+    <testcase classname="orders.CreateOrderTest" name="applies 20 percent coupon to subtotal" time="1.40">
+      <failure message="Expected total 164.00 but was 160.00">AssertionError: Expected total 164.00 but was 160.00
+  POST /orders -> 201, requestId=req-7f3a91c2
+  at orders.CreateOrderTest.appliesPercentCoupon(CreateOrderTest.java:88)</failure>
+    </testcase>
+    <testcase classname="orders.CancelOrderTest" name="cancels a paid order" time="30.02">
+      <error message="java.net.SocketTimeoutException: connect timed out">java.net.SocketTimeoutException: connect timed out
+  at payments.client.RefundClient.refund(RefundClient.java:41)
+  POST /orders/ord-1009/cancel requestId=req-b21e0d77</error>
+    </testcase>
+    <testcase classname="orders.GetOrderTest" name="returns 404 for unknown order" time="0.31"/>
+  </testsuite>
+  <testsuite name="web-checkout" tests="4" failures="2">
+    <testcase classname="checkout.spec.ts" name="guest can apply a coupon" time="12.70">
+      <failure message="TimeoutError: locator.click: Timeout 10000ms exceeded.">TimeoutError: locator.click: Timeout 10000ms exceeded.
+  waiting for locator('.css-1x9fz2a')
+  at checkout.spec.ts:7:43</failure>
+    </testcase>
+    <testcase classname="checkout.spec.ts" name="registered user checks out with saved card" time="8.15">
+      <failure message="Error: user already exists: qa.buyer01@shoplite.example (409)">Error: POST /api/test-users returned 409 Conflict: user already exists: qa.buyer01@shoplite.example
+  at fixtures/users.ts:22:11</failure>
+    </testcase>
+    <testcase classname="checkout.spec.ts" name="cash on delivery order" time="6.44"/>
+    <testcase classname="checkout.spec.ts" name="order summary shows delivery fee" time="3.10"/>
+  </testsuite>
+</testsuites>

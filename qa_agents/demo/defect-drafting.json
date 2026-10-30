@@ -1,0 +1,35 @@
+{
+  "title": "[Pricing] Percentage coupon is calculated on subtotal plus delivery fee, so customers are undercharged",
+  "summary": "Applying a percentage coupon discounts the delivery fee as well as the items. With SAVE20 on a 180 AED cart plus a 20 AED delivery fee, the discount is 40 AED instead of 36 AED and the total is 160.00 AED instead of 164.00 AED. Severity is major: every percentage-coupon order is undercharged, which is direct revenue loss, but checkout still works. Priority is P2 because coupons are live in production campaigns; raise it to P1 if a campaign launches before the fix.",
+  "severity": "major",
+  "priority": "P2",
+  "component": "pricing-service / checkout",
+  "environment": "Staging, build 2026.10.27-rc2, Chrome 130 on Windows 11",
+  "preconditions": [
+    "Coupon SAVE20 is active (percentage, 20%)",
+    "Delivery fee is 20 AED",
+    "Checking out as a guest"
+  ],
+  "steps_to_reproduce": [
+    "Add 2 x Wireless Mouse (90 AED each) to the cart",
+    "Go to checkout as a guest",
+    "Enter the coupon code SAVE20 and click Apply",
+    "Check the discount line and the total in the order summary",
+    "Place the order and check the API response for POST /orders"
+  ],
+  "expected_result": "Discount = 20% of the item subtotal (180.00) = 36.00 AED. Total = 180.00 - 36.00 + 20.00 = 164.00 AED.",
+  "actual_result": "The discount is 40.00 AED and the total is 160.00 AED, in both the UI and the API response (ord-20931).",
+  "evidence": [
+    "screenshot.png: the order summary shows '- AED 40.00' and a total of AED 160.00",
+    "checkout-service.log 11:02:19: pricing-service WARN 'discount base resolved from cart.total (200.00) instead of cart.subtotal', requestId req-91d0aa31",
+    "api_response.json: subtotal 180.0, deliveryFee 20.0, discount 40.0, total 160.0",
+    "notes.md: reproduced 3 out of 3 times"
+  ],
+  "suspected_root_cause": "The pricing service uses cart.total (which includes delivery) as the discount base instead of cart.subtotal.",
+  "labels": ["pricing", "coupon", "revenue-impact", "regression-candidate"],
+  "open_questions": [
+    "Does it also affect logged-in users and the mobile app?",
+    "Since which build? Was it introduced by the latest pricing change?",
+    "Are orders already placed in production affected, and does Finance need a list?"
+  ]
+}

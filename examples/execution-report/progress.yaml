@@ -1,0 +1,5 @@
+release: 2.4.0
+sprint: Sprint 44
+planned_tests: 18
+test_window: 2026-10-26 to 2026-10-30
+environment: staging (build 2026.10.28-rc3)

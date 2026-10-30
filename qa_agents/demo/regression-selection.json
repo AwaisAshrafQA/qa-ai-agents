@@ -1,0 +1,23 @@
+{
+  "summary": "The change touches discount calculation and coupon rules (pricing), the order summary UI (checkout), a feature-flag file and a database migration. Run all pricing and checkout tests plus the invoice test, because invoices depend on pricing. Keep the smoke tests. Two files are not mapped to any module and need manual checks.",
+  "recommendations": [
+    {"test_id": "PRC-001", "decision": "must_run", "reason": "discount_calculator.py changed, and this module had a critical expiry defect (SL-367)"},
+    {"test_id": "PRC-002", "decision": "must_run", "reason": "Discount maths changed; protects against negative totals"},
+    {"test_id": "CHK-001", "decision": "must_run", "reason": "Smoke test; the order summary changed in the checkout flow"},
+    {"test_id": "PRC-003", "decision": "must_run", "reason": "coupon_rules.py changed; minimum subtotal rule"},
+    {"test_id": "PRC-004", "decision": "must_run", "reason": "coupon_rules.py changed, and the migration adds a coupon usage index"},
+    {"test_id": "CHK-002", "decision": "must_run", "reason": "order_summary.tsx changed; it shows the discount and the delivery fee"},
+    {"test_id": "CHK-003", "decision": "should_run", "reason": "Same checkout module, but this payment path is not touched by the change"},
+    {"test_id": "INV-001", "decision": "should_run", "reason": "Invoices depend on pricing, and SL-380 (missing coupon line) was fixed recently"},
+    {"test_id": "SRC-001", "decision": "must_run", "reason": "Smoke test: always part of the run, even though search is not affected"}
+  ],
+  "additional_risks": [
+    "db/migrations/0042_add_coupon_usage_index.sql: check that it runs on a production-sized data set without long table locks.",
+    "config/feature_flags.yaml: check which flags changed and test both states of any coupon-related flag."
+  ],
+  "unmapped_change_advice": [
+    "Map db/migrations/* and config/* to a 'platform' module in test_map.yaml so future changes trigger the right tests.",
+    "For this release, add a one-off migration rehearsal and a flag on/off check to the plan."
+  ],
+  "estimated_scope": "7 must_run and 2 should_run tests, about 25 minutes, plus a 30 minute manual migration rehearsal."
+}

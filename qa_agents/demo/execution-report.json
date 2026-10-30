@@ -1,0 +1,22 @@
+{
+  "headline": "Release 2.4.0 regression: 86.7% pass rate; one coupon pricing defect (SL-402) is behind both failures",
+  "status": "at_risk",
+  "executive_summary": "We executed 15 of 18 planned tests (83.3%). 13 passed, 2 failed and 1 was skipped. The smoke suite is fully green. Both failures come from the same open major defect, SL-402: percentage coupons are calculated including the delivery fee. Status is at risk, not off track, because the cause is known and isolated, but the release cannot be signed off until SL-402 is fixed and re-tested.",
+  "highlights": [
+    "Smoke suite 4/4 green, including guest checkout with card and login",
+    "Order creation, cancellation rules and 404 handling all pass in the API suite",
+    "SL-387 (critical refund defect) and SL-384 (search price filter) are closed and verified"
+  ],
+  "concerns": [
+    "SL-402 (major, pricing) is open and causes both failed tests: an API total of 160.00 against an expected 164.00, and the same wrong amount in the order summary UI",
+    "Apple Pay checkout was skipped because the sandbox is not available on staging, so this payment method is untested",
+    "3 planned tests have not run yet, with the test window ending on 2026-10-30"
+  ],
+  "defect_commentary": "4 defects are open: 0 critical, 1 major, 2 minor, 1 trivial. SL-402 is the only one that affects release readiness: it undercharges every percentage-coupon order. SL-398 (13-character coupon accepted) and SL-395 (coupon missing from the email) are minor and could be deferred with product approval. SL-390 is cosmetic.",
+  "next_steps": [
+    "Pricing team: fix SL-402 in rc4 (discount base = item subtotal)",
+    "QA: re-run the pricing and checkout suites on rc4 and close SL-402",
+    "QA: run the 3 remaining planned tests before 2026-10-30",
+    "DevOps: provide an Apple Pay sandbox, or Product: accept the risk of skipping Apple Pay"
+  ]
+}

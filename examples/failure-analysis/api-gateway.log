@@ -1,0 +1,6 @@
+2026-10-28 02:14:05 INFO  gateway  POST /orders 201 requestId=req-7f3a91c2 latency=212ms
+2026-10-28 02:14:05 WARN  pricing-service  coupon SAVE20 applied to cart total incl. delivery fee (subtotal=180.00 delivery=20.00) requestId=req-7f3a91c2
+2026-10-28 02:14:31 INFO  gateway  POST /orders/ord-1009/cancel requestId=req-b21e0d77
+2026-10-28 02:14:31 ERROR payments-service  upstream refunds-sandbox.example unreachable: connect ECONNREFUSED 10.0.4.17:443
+2026-10-28 02:15:01 ERROR gateway  POST /orders/ord-1009/cancel 504 Gateway Timeout requestId=req-b21e0d77
+2026-10-28 02:15:40 INFO  gateway  POST /api/test-users 409 requestId=req-0c55aa10

@@ -1,0 +1,19 @@
+risks:
+  - id: R1
+    description: Coupon discount miscalculated when delivery fee applies (SL-402), customers undercharged
+    likelihood: high
+    impact: high
+    mitigation: Fix in rc4, or disable percentage coupons with the coupons.percent feature flag
+    owner: Pricing team
+  - id: R2
+    description: New coupon usage index migration locks the coupon_usage table on large data sets
+    likelihood: medium
+    impact: high
+    mitigation: Run migration in the low-traffic window; tested on a production-sized copy
+    owner: Platform team
+  - id: R3
+    description: Apple Pay checkout not tested on staging (sandbox unavailable)
+    likelihood: low
+    impact: medium
+    mitigation: ""
+    owner: QA

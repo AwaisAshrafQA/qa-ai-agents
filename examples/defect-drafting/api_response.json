@@ -1,0 +1,10 @@
+{
+  "id": "ord-20931",
+  "status": "pending",
+  "subtotal": 180.0,
+  "deliveryFee": 20.0,
+  "coupon": { "code": "SAVE20", "type": "PERCENT", "value": 20, "discount": 40.0 },
+  "total": 160.0,
+  "currency": "AED",
+  "requestId": "req-91d0aa31"
+}

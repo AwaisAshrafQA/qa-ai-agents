@@ -1,0 +1,73 @@
+run_id,timestamp,test,status,duration_ms,error,env
+run-001,2026-10-11T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,5246,,staging-a
+run-001,2026-10-11T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,7211,,staging-a
+run-001,2026-10-11T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2286,,staging-a
+run-001,2026-10-11T02:00:00Z,search.spec.ts > filters products by price,passed,4028,,staging-a
+run-001,2026-10-11T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1751,,staging-a
+run-001,2026-10-11T02:00:00Z,profile.spec.ts > updates delivery address,passed,2734,,staging-a
+run-002,2026-10-12T02:00:00Z,checkout.spec.ts > guest can apply a coupon,failed,10088,TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for locator('.css-1x9fz2a'),staging-a
+run-002,2026-10-12T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,6420,,staging-a
+run-002,2026-10-12T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2459,,staging-a
+run-002,2026-10-12T02:00:00Z,search.spec.ts > filters products by price,passed,3792,,staging-a
+run-002,2026-10-12T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1818,,staging-a
+run-002,2026-10-12T02:00:00Z,profile.spec.ts > updates delivery address,passed,2735,,staging-a
+run-003,2026-10-13T02:00:00Z,checkout.spec.ts > guest can apply a coupon,failed,10278,TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for locator('.css-1x9fz2a'),staging-b
+run-003,2026-10-13T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,7182,,staging-b
+run-003,2026-10-13T02:00:00Z,orders.CancelOrderTest > cancels a paid order,failed,30000,java.net.SocketTimeoutException: connect timed out at RefundClient.refund,staging-b
+run-003,2026-10-13T02:00:00Z,search.spec.ts > filters products by price,passed,3649,,staging-b
+run-003,2026-10-13T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1830,,staging-b
+run-003,2026-10-13T02:00:00Z,profile.spec.ts > updates delivery address,passed,2729,,staging-b
+run-004,2026-10-14T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,7255,,staging-a
+run-004,2026-10-14T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,failed,6486,Error: POST /api/test-users returned 409 Conflict: user already exists: qa.buyer04@shoplite.example,staging-a
+run-004,2026-10-14T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2459,,staging-a
+run-004,2026-10-14T02:00:00Z,search.spec.ts > filters products by price,passed,4032,,staging-a
+run-004,2026-10-14T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1825,,staging-a
+run-004,2026-10-14T02:00:00Z,profile.spec.ts > updates delivery address,passed,3036,,staging-a
+run-005,2026-10-15T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,5010,,staging-a
+run-005,2026-10-15T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,failed,7099,Error: POST /api/test-users returned 409 Conflict: user already exists: qa.buyer05@shoplite.example,staging-a
+run-005,2026-10-15T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2343,,staging-a
+run-005,2026-10-15T02:00:00Z,search.spec.ts > filters products by price,passed,3677,,staging-a
+run-005,2026-10-15T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1876,,staging-a
+run-005,2026-10-15T02:00:00Z,profile.spec.ts > updates delivery address,passed,3038,,staging-a
+run-006,2026-10-16T02:00:00Z,checkout.spec.ts > guest can apply a coupon,failed,10558,TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for locator('.css-1x9fz2a'),staging-b
+run-006,2026-10-16T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,7252,,staging-b
+run-006,2026-10-16T02:00:00Z,orders.CancelOrderTest > cancels a paid order,failed,30000,java.net.SocketTimeoutException: connect timed out at RefundClient.refund,staging-b
+run-006,2026-10-16T02:00:00Z,search.spec.ts > filters products by price,passed,3851,,staging-b
+run-006,2026-10-16T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1830,,staging-b
+run-006,2026-10-16T02:00:00Z,profile.spec.ts > updates delivery address,passed,2971,,staging-b
+run-007,2026-10-17T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,8432,,staging-a
+run-007,2026-10-17T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,7278,,staging-a
+run-007,2026-10-17T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2372,,staging-a
+run-007,2026-10-17T02:00:00Z,search.spec.ts > filters products by price,passed,4059,,staging-a
+run-007,2026-10-17T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1809,,staging-a
+run-007,2026-10-17T02:00:00Z,profile.spec.ts > updates delivery address,passed,3225,,staging-a
+run-008,2026-10-18T02:00:00Z,checkout.spec.ts > guest can apply a coupon,failed,10344,TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for locator('.css-1x9fz2a'),staging-a
+run-008,2026-10-18T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,7152,,staging-a
+run-008,2026-10-18T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2286,,staging-a
+run-008,2026-10-18T02:00:00Z,search.spec.ts > filters products by price,passed,4009,,staging-a
+run-008,2026-10-18T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1679,,staging-a
+run-008,2026-10-18T02:00:00Z,profile.spec.ts > updates delivery address,passed,2905,,staging-a
+run-009,2026-10-19T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,6587,,staging-b
+run-009,2026-10-19T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,failed,7646,Error: POST /api/test-users returned 409 Conflict: user already exists: qa.buyer09@shoplite.example,staging-b
+run-009,2026-10-19T02:00:00Z,orders.CancelOrderTest > cancels a paid order,failed,30000,java.net.SocketTimeoutException: connect timed out at RefundClient.refund,staging-b
+run-009,2026-10-19T02:00:00Z,search.spec.ts > filters products by price,failed,4046,AssertionError: expected 12 results but got 0 (price filter 50-100 AED),staging-b
+run-009,2026-10-19T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1904,,staging-b
+run-009,2026-10-19T02:00:00Z,profile.spec.ts > updates delivery address,passed,3191,,staging-b
+run-010,2026-10-20T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,6233,,staging-a
+run-010,2026-10-20T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,6995,,staging-a
+run-010,2026-10-20T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2648,,staging-a
+run-010,2026-10-20T02:00:00Z,search.spec.ts > filters products by price,failed,3655,AssertionError: expected 12 results but got 0 (price filter 50-100 AED),staging-a
+run-010,2026-10-20T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1653,,staging-a
+run-010,2026-10-20T02:00:00Z,profile.spec.ts > updates delivery address,passed,2861,,staging-a
+run-011,2026-10-21T02:00:00Z,checkout.spec.ts > guest can apply a coupon,failed,10116,TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for locator('.css-1x9fz2a'),staging-a
+run-011,2026-10-21T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,6384,,staging-a
+run-011,2026-10-21T02:00:00Z,orders.CancelOrderTest > cancels a paid order,passed,2600,,staging-a
+run-011,2026-10-21T02:00:00Z,search.spec.ts > filters products by price,failed,4117,AssertionError: expected 12 results but got 0 (price filter 50-100 AED),staging-a
+run-011,2026-10-21T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1977,,staging-a
+run-011,2026-10-21T02:00:00Z,profile.spec.ts > updates delivery address,passed,3193,,staging-a
+run-012,2026-10-22T02:00:00Z,checkout.spec.ts > guest can apply a coupon,passed,6409,,staging-b
+run-012,2026-10-22T02:00:00Z,checkout.spec.ts > registered user checks out with saved card,passed,7236,,staging-b
+run-012,2026-10-22T02:00:00Z,orders.CancelOrderTest > cancels a paid order,failed,30000,java.net.SocketTimeoutException: connect timed out at RefundClient.refund,staging-b
+run-012,2026-10-22T02:00:00Z,search.spec.ts > filters products by price,failed,3969,AssertionError: expected 12 results but got 0 (price filter 50-100 AED),staging-b
+run-012,2026-10-22T02:00:00Z,orders.CreateOrderTest > creates order with card payment,passed,1680,,staging-b
+run-012,2026-10-22T02:00:00Z,profile.spec.ts > updates delivery address,passed,2770,,staging-b

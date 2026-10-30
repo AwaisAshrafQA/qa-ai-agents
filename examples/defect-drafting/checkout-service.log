@@ -1,0 +1,5 @@
+2026-10-28 11:02:14 INFO  checkout-service  cart c-55120 subtotal=180.00 delivery=20.00 currency=AED requestId=req-91d0aa31
+2026-10-28 11:02:19 INFO  checkout-service  applying coupon code=SAVE20 type=PERCENT value=20 requestId=req-91d0aa31
+2026-10-28 11:02:19 WARN  pricing-service   discount base resolved from cart.total (200.00) instead of cart.subtotal requestId=req-91d0aa31
+2026-10-28 11:02:19 INFO  checkout-service  discount=40.00 total=160.00 requestId=req-91d0aa31
+2026-10-28 11:02:22 INFO  gateway           POST /orders status=201 requestId=req-91d0aa31
