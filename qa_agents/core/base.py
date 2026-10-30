@@ -77,6 +77,7 @@ class Agent(ABC):
     system_prompt: ClassVar[str]
     output_model: ClassVar[type[BaseModel]]
     example_files: ClassVar[list[str]] = []
+    guardrails: ClassVar[list[str]] = []  # enforced in finalise(); stated for skill users
 
     def analyse(self, files: list[InputFile]) -> dict[str, Any]:
         """Deterministic pre-processing. Results go to Claude and into the report."""
@@ -89,13 +90,29 @@ class Agent(ABC):
         """Guardrails and post-processing applied to Claude's answer."""
         return output
 
-    def run(self, paths: Sequence[str | Path], llm: LLM) -> AgentResult:
+    def load(self, paths: Sequence[str | Path]) -> list[InputFile]:
         if not paths:
             raise AgentError(f"{self.name} needs input files: {self.inputs_help}")
         files = [InputFile(Path(p)) for p in paths]
         for f in files:
             if not f.path.is_file():
                 raise AgentError(f"Input file not found: {f.path}")
+        return files
+
+    def brief(self, paths: Sequence[str | Path]) -> dict[str, Any]:
+        """Everything an assistant needs to do the judgment part itself (used by the Claude Code skills)."""
+        files = self.load(paths)
+        return {
+            "agent": self.name,
+            "inputs": [str(f.path) for f in files],
+            "instructions": (SYSTEM_PREAMBLE + self.system_prompt).strip(),
+            "guardrails": self.guardrails,
+            "output_fields": list(self.output_model.model_fields),
+            "facts": self.analyse(files),
+        }
+
+    def run(self, paths: Sequence[str | Path], llm: LLM) -> AgentResult:
+        files = self.load(paths)
         facts = self.analyse(files)
         prompt = self.build_prompt(files, facts)
         output = llm.run(

@@ -61,6 +61,7 @@ class ReleaseQualityAgent(Agent):
     inputs_help = "JUnit XML report(s), defects .csv, risks .yaml and release criteria .yaml"
     example_files = ["results.xml", "defects.csv", "risks.yaml", "criteria.yaml"]
     output_model = ReleaseReadiness
+    guardrails = ["If facts.all_gates_passed is false, the decision must not be 'go'."]
     system_prompt = """Task: recommend go / go_with_conditions / no_go for a release.
 Quality gates were evaluated locally against the team's criteria. A failed gate is a hard
 blocker unless the criteria explicitly allow a waiver: never recommend 'go' while a gate fails.

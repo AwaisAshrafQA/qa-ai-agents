@@ -105,6 +105,7 @@ class RegressionSelectionAgent(Agent):
     inputs_help = "changed files (.txt from git diff --name-only), test map (.yaml) and optional defect history (.csv)"
     example_files = ["changed_files.txt", "test_map.yaml", "defect_history.csv"]
     output_model = RegressionPlan
+    guardrails = ["Every test in facts.mandatory_test_ids must be must_run."]
     system_prompt = """Task: choose the regression tests to run for this change set.
 Candidate tests were scored locally from: direct vs indirect module impact, test priority, smoke
 tag and the module's defect history. Decide must_run / should_run / optional for each candidate

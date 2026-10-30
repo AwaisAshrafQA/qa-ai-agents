@@ -1,8 +1,9 @@
-"""Command line: `qa-agents list | run <agent> <files...> | example <agent|all>`."""
+"""Command line: `qa-agents list | run <agent> <files...> | facts <agent> <files...> | example <agent|all>`."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -40,6 +41,12 @@ def cmd_run(args) -> int:
     return 0
 
 
+def cmd_facts(args) -> int:
+    """Deterministic analysis only: no model call, no API key."""
+    sys.stdout.write(json.dumps(get_agent(args.agent).brief(args.files), indent=2, ensure_ascii=False) + "\n")
+    return 0
+
+
 def cmd_example(args) -> int:
     names = list(REGISTRY) if args.agent == "all" else [args.agent]
     llm = _client(args)
@@ -74,6 +81,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("agent", choices=list(REGISTRY))
     run.add_argument("files", nargs="+")
     run.set_defaults(func=cmd_run)
+
+    facts = sub.add_parser("facts", help="print the locally computed facts and the agent's instructions as JSON (no API call)")
+    facts.add_argument("agent", choices=list(REGISTRY))
+    facts.add_argument("files", nargs="+")
+    facts.set_defaults(func=cmd_facts)
 
     ex = sub.add_parser("example", parents=[common], help="run an agent on the bundled examples")
     ex.add_argument("agent", choices=[*REGISTRY, "all"])

@@ -9,6 +9,11 @@ Each agent does two things:
 
 Where a wrong answer would be costly, **guardrails** in code have the last word. For example, the release agent can never say "go" while a quality gate fails, and the regression agent always keeps smoke and P1 tests for changed modules.
 
+There are two ways to use it:
+
+- **Command line / CI:** `qa-agents run ...` calls the Claude API and writes a Markdown or JSON report.
+- **Claude Code skills:** ten skills in [`.claude/skills/`](.claude/skills/) let you ask Claude Code in plain English ("triage the failed tests", "is this release ready?"). The skill runs the same Python analysis, Claude Code does the judgment, and it can then act: fix the test, rerun it, write the contract tests. No API key is needed.
+
 > **Try it without an API key:** `--demo` replays recorded responses. The locally computed facts are still real.
 
 ## The agents
@@ -49,8 +54,44 @@ pip install -e ".[dev]"
 qa-agents list
 qa-agents example release-readiness --demo     # one agent, recorded response
 qa-agents example all --demo --out reports     # all ten, written to ./reports
-pytest -q                                       # 38 tests, no API key needed
+pytest -q                                       # 59 tests, no API key needed
 ```
+
+## Using the Claude Code skills
+
+| Skill | Ask Claude Code something like |
+|---|---|
+| `qa-requirement-review` | "Is SL-101 ready for development?" |
+| `qa-test-case-generation` | "Write test cases for the coupon requirement" |
+| `qa-api-contract` | "What should we test in openapi.yaml?" |
+| `qa-code-review` | "Review the tests changed in this branch" |
+| `qa-failure-analysis` | "Why did last night's run fail?" |
+| `qa-flaky-tests` | "Which tests are flaky and why?" |
+| `qa-defect-drafting` | "Write a bug from this log and screenshot" |
+| `qa-regression-selection` | "What should we regression-test for this PR?" |
+| `qa-execution-report` | "Write today's QA status report" |
+| `qa-release-readiness` | "Is 2.4.0 ready to ship?" |
+
+**In this repository:** open it in Claude Code and the skills load automatically.
+
+**In your own project:** install the package and copy the skills into your user skills folder:
+
+```bash
+pip install git+https://github.com/AwaisAshrafQA/qa-ai-agents
+```
+
+```bash
+cp -r .claude/skills/qa-* ~/.claude/skills/
+```
+
+Each skill follows the same four steps:
+
+1. Run `qa-agents facts <agent> <files>`, which prints the exact facts, the agent's instructions, the output fields and any guardrails as JSON. No model call is made.
+2. Claude Code reads the facts and the source files and does the analysis.
+3. It writes the report in the agent's structure, keeping the guardrails (for example, no "go" while a quality gate fails).
+4. It offers concrete next steps, such as fixing the test or rerunning it, and asks before changing anything.
+
+Both ways share the same instructions and facts, so the CLI and the skills never drift apart. The tests check that every agent has a matching skill.
 
 ## Using it with Claude
 
@@ -73,6 +114,8 @@ Options:
 | `--json` | off | JSON (facts + output) instead of Markdown |
 | `--out` | stdout | Write to a file |
 | `--demo` | off | Recorded responses, no API calls |
+
+`qa-agents facts <agent> <files>` prints only the deterministic analysis as JSON, without calling Claude.
 
 ### In CI
 
@@ -104,16 +147,17 @@ qa_agents/
   demo/        recorded responses for --demo
 examples/      made-up sample inputs for each agent (fictional "ShopLite" store)
 sample-reports/  generated output for each agent
-tests/         pytest: deterministic logic, guardrails, CLI, API client (mocked HTTP)
+tests/         pytest: deterministic logic, guardrails, CLI, API client (mocked HTTP), skills
+.claude/skills/  one Claude Code skill per agent
 ```
 
 ## Adding an agent
 
-Subclass `Agent`, define a Pydantic `output_model`, a `system_prompt` and `build_prompt()`. Optionally add `analyse()` for deterministic facts and `finalise()` for guardrails. Register the agent in `qa_agents/agents/__init__.py` and add a recorded response in `qa_agents/demo/`.
+Subclass `Agent`, define a Pydantic `output_model`, a `system_prompt` and `build_prompt()`. Optionally add `analyse()` for deterministic facts and `finalise()` for guardrails. Register the agent in `qa_agents/agents/__init__.py`, add a recorded response in `qa_agents/demo/` and add a skill in `.claude/skills/qa-<name>/SKILL.md`.
 
 ## Data and privacy
 
-Agent inputs are sent to the Anthropic API when you run without `--demo`. Don't send secrets, production credentials or customer personal data; mask them first. All sample data in this repository is made up.
+Agent inputs are sent to the Anthropic API when you run without `--demo`, or to Claude Code when you use the skills. Don't send secrets, production credentials or customer personal data; mask them first. All sample data in this repository is made up.
 
 ## License
 
